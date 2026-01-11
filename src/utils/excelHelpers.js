@@ -110,8 +110,20 @@ export const parseExcel = (file) => {
                     // row indexes allow us to map safely even if columns act weird
                     const [date, type, amount, accountName, categoryName, note] = row;
                     if (!date || !amount) return null;
+
+                    // Convert Excel serial date to proper date string
+                    let dateStr;
+                    if (typeof date === 'number') {
+                        // Excel serial date (days since 1900-01-01)
+                        const excelDate = XLSX.SSF.parse_date_code(date);
+                        dateStr = `${excelDate.y}-${String(excelDate.m).padStart(2, '0')}-${String(excelDate.d).padStart(2, '0')}`;
+                    } else {
+                        // Already a string, just trim
+                        dateStr = String(date).trim();
+                    }
+
                     return {
-                        date: String(date).trim(),
+                        date: dateStr,
                         type: String(type).trim().toUpperCase(),
                         amount: Number(amount),
                         accountName: String(accountName).trim(),
