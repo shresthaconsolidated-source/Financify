@@ -165,36 +165,38 @@ export const DashboardView = ({ onNavigate }) => {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                     {data?.accounts.filter(a => a.type === 'BANK' || a.type === 'CASH').map(acc => (
-                        <div key={acc.id} className="list-item">
-                            <div style={{
-                                fontSize: '1.5rem',
-                                width: '48px',
-                                height: '48px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                background: 'var(--bg-soft)',
-                                borderRadius: '12px'
-                            }}>
-                                {acc.type === 'BANK' ? '🏦' : '💵'}
-                            </div>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 600, fontSize: '0.9375rem', marginBottom: '0.125rem' }}>
-                                    {acc.name}
+                        <div key={acc.id} className="glass-card" style={{ padding: '1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                                <div style={{
+                                    fontSize: '1.25rem',
+                                    width: '40px',
+                                    height: '40px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: 'var(--bg-soft)',
+                                    borderRadius: '10px'
+                                }}>
+                                    {acc.type === 'BANK' ? '🏦' : '💵'}
                                 </div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                                    {acc.type}
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {acc.name}
+                                    </div>
+                                    <div style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)' }}>
+                                        {acc.type}
+                                    </div>
                                 </div>
                             </div>
-                            <div style={{ fontWeight: 700, fontSize: '1rem', fontVariantNumeric: 'tabular-nums' }}>
+                            <div style={{ fontWeight: 700, fontSize: '1.125rem', fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}>
                                 {data.user.currency}{Number(acc.balance).toLocaleString()}
                             </div>
                         </div>
                     ))}
                     {data?.accounts.filter(a => a.type === 'BANK' || a.type === 'CASH').length === 0 && (
-                        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-tertiary)', fontSize: '0.875rem' }}>
+                        <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem', color: 'var(--text-tertiary)', fontSize: '0.875rem' }}>
                             No bank or cash accounts yet
                         </div>
                     )}
@@ -216,30 +218,32 @@ export const DashboardView = ({ onNavigate }) => {
                         </div>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                         {data.accounts.filter(a => a.type === 'ASSET').map(acc => (
-                            <div key={acc.id} className="list-item">
-                                <div style={{
-                                    fontSize: '1.5rem',
-                                    width: '48px',
-                                    height: '48px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08))',
-                                    borderRadius: '12px'
-                                }}>
-                                    📈
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 600, fontSize: '0.9375rem', marginBottom: '0.125rem' }}>
-                                        {acc.name}
+                            <div key={acc.id} className="glass-card" style={{ padding: '1rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                                    <div style={{
+                                        fontSize: '1.25rem',
+                                        width: '40px',
+                                        height: '40px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08))',
+                                        borderRadius: '10px'
+                                    }}>
+                                        📈
                                     </div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                                        {acc.assetClass || 'Asset'}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {acc.name}
+                                        </div>
+                                        <div style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)' }}>
+                                            {acc.assetClass || 'Asset'}
+                                        </div>
                                     </div>
                                 </div>
-                                <div style={{ fontWeight: 700, fontSize: '1rem', fontVariantNumeric: 'tabular-nums' }}>
+                                <div style={{ fontWeight: 700, fontSize: '1.125rem', fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}>
                                     {data.user.currency}{Number(acc.balance).toLocaleString()}
                                 </div>
                             </div>
