@@ -57,98 +57,100 @@ export const DashboardView = ({ onNavigate }) => {
                 </div>
             </header>
 
-            {/* Hero Balance Card */}
-            <div className="hero-card" style={{ marginBottom: '2rem' }}>
-                <div style={{
-                    fontSize: '0.75rem',
-                    opacity: 0.8,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    fontWeight: 600,
-                    marginBottom: '0.5rem'
-                }}>
-                    Total Balance
-                </div>
-                <div style={{
-                    fontSize: '3rem',
-                    fontWeight: 800,
-                    lineHeight: 1,
-                    marginBottom: '1.5rem',
-                    fontVariantNumeric: 'tabular-nums',
-                    letterSpacing: '-0.04em'
-                }}>
-                    <span style={{ fontSize: '1.5rem', fontWeight: 600, marginRight: '0.25rem', opacity: 0.9 }}>
-                        {data?.user.currency}
-                    </span>
-                    {totalNetWorth.toLocaleString()}
-                </div>
 
-                <div style={{ display: 'flex', gap: '2rem' }}>
-                    <div>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            marginBottom: '0.375rem',
-                            fontSize: '0.8125rem',
-                            opacity: 0.85
-                        }}>
+            {/* Hero Balance Card + Quick Actions */}
+            <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                <div className="hero-card" style={{ flex: 1, padding: '1.25rem' }}>
+                    <div style={{
+                        fontSize: '0.6875rem',
+                        opacity: 0.8,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        fontWeight: 600,
+                        marginBottom: '0.375rem'
+                    }}>
+                        Total Balance
+                    </div>
+                    <div style={{
+                        fontSize: '2rem',
+                        fontWeight: 800,
+                        lineHeight: 1,
+                        marginBottom: '1rem',
+                        fontVariantNumeric: 'tabular-nums',
+                        letterSpacing: '-0.04em'
+                    }}>
+                        <span style={{ fontSize: '1.125rem', fontWeight: 600, marginRight: '0.25rem', opacity: 0.9 }}>
+                            {data?.user.currency}
+                        </span>
+                        {totalNetWorth.toLocaleString()}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '1.5rem' }}>
+                        <div>
                             <div style={{
-                                width: '6px',
-                                height: '6px',
-                                background: '#4ade80',
-                                borderRadius: '50%',
-                                boxShadow: '0 0 8px rgba(74, 222, 128, 0.6)'
-                            }} />
-                            Income
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                marginBottom: '0.25rem',
+                                fontSize: '0.75rem',
+                                opacity: 0.85
+                            }}>
+                                <div style={{
+                                    width: '5px',
+                                    height: '5px',
+                                    background: '#4ade80',
+                                    borderRadius: '50%',
+                                    boxShadow: '0 0 6px rgba(74, 222, 128, 0.6)'
+                                }} />
+                                Income
+                            </div>
+                            <div style={{ fontSize: '0.9375rem', fontWeight: 700 }}>
+                                +{data?.user.currency}{income.toLocaleString()}
+                            </div>
                         </div>
-                        <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>
-                            +{data?.user.currency}{income.toLocaleString()}
+                        <div>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                marginBottom: '0.25rem',
+                                fontSize: '0.75rem',
+                                opacity: 0.85
+                            }}>
+                                <div style={{
+                                    width: '5px',
+                                    height: '5px',
+                                    background: '#f87171',
+                                    borderRadius: '50%',
+                                    boxShadow: '0 0 6px rgba(248, 113, 113, 0.6)'
+                                }} />
+                                Expenses
+                            </div>
+                            <div style={{ fontSize: '0.9375rem', fontWeight: 700 }}>
+                                -{data?.user.currency}{expense.toLocaleString()}
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            marginBottom: '0.375rem',
-                            fontSize: '0.8125rem',
-                            opacity: 0.85
-                        }}>
-                            <div style={{
-                                width: '6px',
-                                height: '6px',
-                                background: '#f87171',
-                                borderRadius: '50%',
-                                boxShadow: '0 0 8px rgba(248, 113, 113, 0.6)'
-                            }} />
-                            Expenses
-                        </div>
-                        <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>
-                            -{data?.user.currency}{expense.toLocaleString()}
-                        </div>
-                    </div>
                 </div>
-            </div>
 
-            {/* Quick Actions */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '2rem' }}>
-                <button
-                    className="btn-primary"
-                    onClick={() => onNavigate('transactions')}
-                    style={{ padding: '1.25rem', fontSize: '0.9375rem' }}
-                >
-                    <Plus size={20} />
-                    Add Transaction
-                </button>
-                <button
-                    className="btn-secondary"
-                    onClick={() => onNavigate('goals')}
-                    style={{ padding: '1.25rem', fontSize: '0.9375rem' }}
-                >
-                    <TrendingUp size={20} />
-                    Set Goals
-                </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <button
+                        className="btn-primary"
+                        onClick={() => onNavigate('transactions')}
+                        style={{ padding: '0.875rem 1rem', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
+                    >
+                        <Plus size={16} />
+                        Add Transaction
+                    </button>
+                    <button
+                        className="btn-secondary"
+                        onClick={() => onNavigate('goals')}
+                        style={{ padding: '0.875rem 1rem', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
+                    >
+                        <TrendingUp size={16} />
+                        Set Goals
+                    </button>
+                </div>
             </div>
 
             {/* Bank & Cash Section */}
@@ -165,32 +167,32 @@ export const DashboardView = ({ onNavigate }) => {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                     {data?.accounts.filter(a => a.type === 'BANK' || a.type === 'CASH').map(acc => (
-                        <div key={acc.id} className="glass-card" style={{ padding: '1rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                        <div key={acc.id} className="glass-card" style={{ padding: '0.75rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                                 <div style={{
-                                    fontSize: '1.25rem',
-                                    width: '40px',
-                                    height: '40px',
+                                    fontSize: '1.125rem',
+                                    width: '32px',
+                                    height: '32px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     background: 'var(--bg-soft)',
-                                    borderRadius: '10px'
+                                    borderRadius: '8px'
                                 }}>
                                     {acc.type === 'BANK' ? '🏦' : '💵'}
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    <div style={{ fontWeight: 600, fontSize: '0.8125rem', marginBottom: '0.0625rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                         {acc.name}
                                     </div>
-                                    <div style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)' }}>
+                                    <div style={{ fontSize: '0.625rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                         {acc.type}
                                     </div>
                                 </div>
                             </div>
-                            <div style={{ fontWeight: 700, fontSize: '1.125rem', fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}>
+                            <div style={{ fontWeight: 700, fontSize: '1rem', fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}>
                                 {data.user.currency}{Number(acc.balance).toLocaleString()}
                             </div>
                         </div>
@@ -218,32 +220,32 @@ export const DashboardView = ({ onNavigate }) => {
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                         {data.accounts.filter(a => a.type === 'ASSET').map(acc => (
-                            <div key={acc.id} className="glass-card" style={{ padding: '1rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                            <div key={acc.id} className="glass-card" style={{ padding: '0.75rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                                     <div style={{
-                                        fontSize: '1.25rem',
-                                        width: '40px',
-                                        height: '40px',
+                                        fontSize: '1.125rem',
+                                        width: '32px',
+                                        height: '32px',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08))',
-                                        borderRadius: '10px'
+                                        borderRadius: '8px'
                                     }}>
                                         📈
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        <div style={{ fontWeight: 600, fontSize: '0.8125rem', marginBottom: '0.0625rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {acc.name}
                                         </div>
-                                        <div style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)' }}>
+                                        <div style={{ fontSize: '0.625rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                             {acc.assetClass || 'Asset'}
                                         </div>
                                     </div>
                                 </div>
-                                <div style={{ fontWeight: 700, fontSize: '1.125rem', fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}>
+                                <div style={{ fontWeight: 700, fontSize: '1rem', fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}>
                                     {data.user.currency}{Number(acc.balance).toLocaleString()}
                                 </div>
                             </div>
