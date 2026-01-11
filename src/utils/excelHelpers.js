@@ -6,7 +6,7 @@ export const generateSmartTemplate = async (accounts, categories) => {
     const worksheet = workbook.addWorksheet('Transactions');
 
     // 1. Define Columns
-    const headers = ['Date (YYYY-MM-DD)', 'Type', 'Amount', 'Account Name', 'Category Name', 'Note'];
+    const headers = ['Date (YYYY-MM-DD)', 'Type', 'Amount', 'Account Name', 'To Account Name', 'Category Name', 'Note'];
     worksheet.addRow(headers);
 
     // Set widths
@@ -14,13 +14,17 @@ export const generateSmartTemplate = async (accounts, categories) => {
     worksheet.getColumn(2).width = 15; // Type
     worksheet.getColumn(3).width = 15; // Amount
     worksheet.getColumn(4).width = 25; // Account
-    worksheet.getColumn(5).width = 25; // Category
-    worksheet.getColumn(6).width = 30; // Note
+    worksheet.getColumn(5).width = 25; // To Account
+    worksheet.getColumn(6).width = 25; // Category
+    worksheet.getColumn(7).width = 30; // Note
 
-    // 2. Add Example Row
+    // 2. Add Example Rows
     const accName = accounts && accounts.length > 0 ? accounts[0].name : 'Bank';
+    const toAccName = accounts && accounts.length > 1 ? accounts[1].name : 'Savings';
     const catName = categories && categories.length > 0 ? categories[0].name : 'Salary';
-    worksheet.addRow(['2025-01-01', 'INCOME', 5000, accName, catName, 'Example Entry']);
+
+    worksheet.addRow(['2025-01-01', 'INCOME', 5000, accName, '', catName, 'Salary Payment']);
+    worksheet.addRow(['2025-01-02', 'TRANSFER', 1000, accName, toAccName, '', 'To Savings']);
 
     // 3. Create Hidden Validation Sheet
     let refSheet = workbook.getWorksheet('DataValidation');
@@ -64,10 +68,19 @@ export const generateSmartTemplate = async (accounts, categories) => {
         };
     }
 
-    // Category Validation (Col E)
-    const catRange = `DataValidation!$B$1:$B$${catLen}`;
+    // To Account Validation (Col E) - for transfers
     for (let i = 2; i <= rowsToValidate; i++) {
         worksheet.getCell(`E${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: [accRange]
+        };
+    }
+
+    // Category Validation (Col F)
+    const catRange = `DataValidation!$B$1:$B$${catLen}`;
+    for (let i = 2; i <= rowsToValidate; i++) {
+        worksheet.getCell(`F${i}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [catRange]

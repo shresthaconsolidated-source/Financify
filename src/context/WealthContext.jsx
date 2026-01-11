@@ -230,7 +230,7 @@ export const WealthProvider = ({ children }) => {
             let newTxList = [];
 
             rows.forEach(row => {
-                const { date, type, amount, accountName, categoryName, note } = row;
+                const { date, type, amount, accountName, toAccountName, categoryName, note } = row;
 
                 // 1. Helper to find exact match (case-insensitive)
                 const findAccount = (name) => newAccounts.find(a => a.name.toLowerCase() === name.toLowerCase());
@@ -249,17 +249,36 @@ export const WealthProvider = ({ children }) => {
                     newAccounts.push(account);
                 }
 
-                // 3. Category Logic (Auto-Create)
-                let category = findCategory(categoryName);
-                if (!category) {
-                    category = {
-                        id: uuidv4(),
-                        name: categoryName,
-                        type: type === 'INCOME' ? 'INCOME' : 'EXPENSE', // Guess type based on transaction
-                        icon: '❓',
-                        isAutoCreated: true
-                    };
-                    newCategories.push(category);
+                // 2b. For transfers, handle To Account
+                let toAccount = null;
+                if (type === 'TRANSFER' && toAccountName) {
+                    toAccount = findAccount(toAccountName);
+                    if (!toAccount) {
+                        toAccount = {
+                            id: uuidv4(),
+                            name: toAccountName,
+                            type: 'CASH',
+                            balance: 0,
+                            isAutoCreated: true
+                        };
+                        newAccounts.push(toAccount);
+                    }
+                }
+
+                // 3. Category Logic (Auto-Create) - Skip for transfers
+                let category = null;
+                if (type !== 'TRANSFER' && categoryName) {
+                    category = findCategory(categoryName);
+                    if (!category) {
+                        category = {
+                            id: uuidv4(),
+                            name: categoryName,
+                            type: type === 'INCOME' ? 'INCOME' : 'EXPENSE', // Guess type based on transaction
+                            icon: '❓',
+                            isAutoCreated: true
+                        };
+                        newCategories.push(category);
+                    }
                 }
 
                 // 4. Create Transaction
@@ -269,9 +288,14 @@ export const WealthProvider = ({ children }) => {
                     type: type,
                     amount: amount,
                     accountId: account.id,
-                    categoryId: category.id,
+                    categoryId: category?.id || null,
                     note: note || 'Imported'
                 };
+
+                // Add toAccountId for transfers
+                if (type === 'TRANSFER' && toAccount) {
+                    newTx.toAccountId = toAccount.id;
+                }
 
                 newTxList.push(newTx);
 
@@ -283,12 +307,15 @@ export const WealthProvider = ({ children }) => {
                         newAccounts[accIndex] = { ...newAccounts[accIndex], balance: currentBal + amount };
                     } else if (type === 'EXPENSE') {
                         newAccounts[accIndex] = { ...newAccounts[accIndex], balance: currentBal - amount };
-                    } else if (type === 'TRANSFER') {
-                        // Simplify transfer for bulk import: maybe just deduct? 
-                        // Real transfer needs 'ToAccount'. For now, treat as expense-like deduction from source.
+                    } else if (type === 'TRANSFER' && toAccount) {
+                        // Deduct from source account
                         newAccounts[accIndex] = { ...newAccounts[accIndex], balance: currentBal - amount };
-                        // Ideally transfers in CSV need 'To Account' column. 
-                        // Simplification: Treat bulk import transfers as withdrawals.
+                        // Add to destination account
+                        const toAccIndex = newAccounts.findIndex(a => a.id === toAccount.id);
+                        if (toAccIndex >= 0) {
+                            const toCurrentBal = Number(newAccounts[toAccIndex].balance);
+                            newAccounts[toAccIndex] = { ...newAccounts[toAccIndex], balance: toCurrentBal + amount };
+                        }
                     }
                 }
             });
