@@ -1,53 +1,88 @@
 import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
-export const generateSmartTemplate = (accounts, categories) => {
-    // 1. Prepare Data
-    const headers = ['Date (YYYY-MM-DD)', 'Type (INCOME/EXPENSE/TRANSFER)', 'Amount', 'Account Name', 'Category Name', 'Note'];
-    // Safe check for accounts/categories existence
+export const generateSmartTemplate = async (accounts, categories) => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Transactions');
+
+    // 1. Define Columns
+    const headers = ['Date (YYYY-MM-DD)', 'Type', 'Amount', 'Account Name', 'Category Name', 'Note'];
+    worksheet.addRow(headers);
+
+    // Set widths
+    worksheet.getColumn(1).width = 18; // Date
+    worksheet.getColumn(2).width = 15; // Type
+    worksheet.getColumn(3).width = 15; // Amount
+    worksheet.getColumn(4).width = 25; // Account
+    worksheet.getColumn(5).width = 25; // Category
+    worksheet.getColumn(6).width = 30; // Note
+
+    // 2. Add Example Row
     const accName = accounts && accounts.length > 0 ? accounts[0].name : 'Bank';
     const catName = categories && categories.length > 0 ? categories[0].name : 'Salary';
+    worksheet.addRow(['2025-01-01', 'INCOME', 5000, accName, catName, 'Example Entry']);
 
-    const exampleRow = ['2025-01-01', 'INCOME', '5000', accName, catName, 'Example Entry'];
-
-    // 2. Create Workbook
-    const wb = XLSX.utils.book_new();
-
-    // 3. Create Transactions Sheet (Main)
-    const wsData = [headers, exampleRow];
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-    // 4. Create Validation Sheet (Hidden lists)
-    // We list Accounts in Col A, Categories in Col B
-    const accountNames = (accounts || []).map(a => a.name);
-    const categoryNames = (categories || []).map(c => c.name);
-    const maxRows = Math.max(accountNames.length, categoryNames.length);
-
-    const validationData = [];
-    for (let i = 0; i < maxRows; i++) {
-        validationData.push([
-            accountNames[i] || '', // Col A
-            categoryNames[i] || '' // Col B
-        ]);
+    // 3. Create Hidden Validation Sheet
+    let refSheet = workbook.getWorksheet('DataValidation');
+    if (!refSheet) {
+        refSheet = workbook.addWorksheet('DataValidation', { state: 'hidden' });
     }
-    const wsValidation = XLSX.utils.aoa_to_sheet(validationData);
 
-    // Append Sheets
-    XLSX.utils.book_append_sheet(wb, ws, "Transactions");
-    XLSX.utils.book_append_sheet(wb, wsValidation, "Valid_Values_DO_NOT_EDIT");
+    // Fill Accounts in Col A
+    const accLen = Math.max((accounts || []).length, 1);
+    (accounts || []).forEach((acc, i) => {
+        refSheet.getCell(`A${i + 1}`).value = acc.name;
+    });
+    if ((accounts || []).length === 0) refSheet.getCell('A1').value = 'Bank';
 
-    // 5. Download using Blob method (More reliable for modern browsers than writeFile sometimes)
-    // Using write to array type
-    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    // Fill Categories in Col B
+    const catLen = Math.max((categories || []).length, 1);
+    (categories || []).forEach((cat, i) => {
+        refSheet.getCell(`B${i + 1}`).value = cat.name;
+    });
+    if ((categories || []).length === 0) refSheet.getCell('B1').value = 'Salary';
+
+    // 4. Apply Validation to Main Sheet (Rows 2 to 500)
+    const rowsToValidate = 500;
+
+    // Type Validation (Col B)
+    for (let i = 2; i <= rowsToValidate; i++) {
+        worksheet.getCell(`B${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: ['"INCOME,EXPENSE,TRANSFER"']
+        };
+    }
+
+    // Account Validation (Col D)
+    const accRange = `DataValidation!$A$1:$A$${accLen}`;
+    for (let i = 2; i <= rowsToValidate; i++) {
+        worksheet.getCell(`D${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: [accRange]
+        };
+    }
+
+    // Category Validation (Col E)
+    const catRange = `DataValidation!$B$1:$B$${catLen}`;
+    for (let i = 2; i <= rowsToValidate; i++) {
+        worksheet.getCell(`E${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: [catRange]
+        };
+    }
+
+    // 5. Download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const url = URL.createObjectURL(blob);
-
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', 'wealth_tracker_smart_template.xlsx');
     document.body.appendChild(link);
     link.click();
-
-    // Cleanup
     setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
