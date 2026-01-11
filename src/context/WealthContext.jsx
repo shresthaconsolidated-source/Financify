@@ -86,7 +86,16 @@ export const WealthProvider = ({ children }) => {
             ...prev,
             accounts: prev.accounts.map(acc => acc.id === id ? { ...acc, ...updates } : acc)
         }));
-    }
+    };
+
+    const deleteAccount = (id) => {
+        setData(prev => ({
+            ...prev,
+            accounts: prev.accounts.filter(acc => acc.id !== id),
+            // Also remove transactions associated with this account
+            transactions: prev.transactions.filter(tx => tx.accountId !== id && tx.toAccountId !== id)
+        }));
+    };
 
     const updateCurrency = (currency) => {
         setData(prev => ({ ...prev, user: { ...prev.user, currency } }));
@@ -235,6 +244,7 @@ export const WealthProvider = ({ children }) => {
         addTransaction,
         addAccount,
         updateAccount,
+        deleteAccount,
         updateCurrency,
         addCategory,
         deleteCategory,

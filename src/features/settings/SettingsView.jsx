@@ -5,7 +5,7 @@ import { generateSmartTemplate, parseExcel } from '../../utils/excelHelpers';
 import { exportJSON, parseJSON } from '../../utils/csvHelpers';
 
 export const SettingsView = () => {
-    const { data, addAccount, updateCurrency, addCategory, deleteCategory, addAssetClass, deleteAssetClass, importData, importExcelTransactions } = useWealth();
+    const { data, addAccount, updateAccount, deleteAccount, updateCurrency, addCategory, deleteCategory, addAssetClass, deleteAssetClass, importData, importExcelTransactions } = useWealth();
 
     // Modals & State
     const [activeModal, setActiveModal] = useState(null);
@@ -147,18 +147,56 @@ export const SettingsView = () => {
                             borderBottom: i === data.accounts.length - 1 ? 'none' : '1px solid var(--border-subtle)',
                             display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
                                 <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--bg-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {acc.type === 'BANK' && <Building2 size={16} />}
                                     {acc.type === 'CASH' && <Wallet size={16} />}
                                     {acc.type === 'ASSET' && <TrendingUp size={16} />}
                                 </div>
-                                <div>
+                                <div style={{ flex: 1 }}>
                                     <div style={{ fontWeight: '600' }}>{acc.name}</div>
                                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{acc.assetClass || acc.type}</div>
                                 </div>
                             </div>
-                            <div style={{ color: 'var(--text-main)', fontWeight: '600' }}>{data.user.currency}{Number(acc.balance).toLocaleString()}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ color: 'var(--text-main)', fontWeight: '600' }}>{data.user.currency}{Number(acc.balance).toLocaleString()}</div>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                        onClick={() => setActiveModal('EDIT_ACCOUNT_' + acc.id)}
+                                        style={{
+                                            background: 'var(--bg-soft)',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            padding: '0.5rem',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}
+                                    >
+                                        <Edit2 size={14} color="var(--text-secondary)" />
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm(`Delete "${acc.name}"? This will also delete all associated transactions.`)) {
+                                                deleteAccount(acc.id);
+                                            }
+                                        }}
+                                        style={{
+                                            background: 'var(--danger-bg)',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            padding: '0.5rem',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}
+                                    >
+                                        <Trash2 size={14} color="var(--danger)" />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     ))}
                 </div>
