@@ -1,65 +1,67 @@
 import React from 'react';
-import { Home, PieChart, Repeat, Target, Settings } from 'lucide-react';
+import { Home, PieChart, Settings, Repeat } from 'lucide-react'; // Changed ArrowRightLeft to Repeat for 'Transact'
 
 export const Navbar = ({ activeTab, onTabChange }) => {
-    const tabs = [
-        { id: 'dashboard', icon: Home, label: 'Home' },
-        { id: 'transactions', icon: Repeat, label: 'Transact' },
-        // { id: 'stats', icon: PieChart, label: 'Stats' },
-        { id: 'goals', icon: Target, label: 'Goals' },
-        { id: 'settings', icon: Settings, label: 'Settings' },
+    const navItems = [
+        { id: 'home', icon: Home, label: 'Home' },
+        { id: 'transact', icon: Repeat, label: 'Transact' },
+        { id: 'goals', icon: PieChart, label: 'Goals' },
+        { id: 'settings', icon: Settings, label: 'Settings' }
     ];
 
     return (
-        <nav style={{
-            position: 'absolute',
+        <div style={{
+            position: 'fixed',
             bottom: 0,
-            left: 0,
-            right: 0,
-            height: '80px',
-            background: 'rgba(18, 18, 20, 0.95)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderTop: '1px solid var(--border-subtle)',
-            display: 'flex',
-            justifyContent: 'space-around',
-            alignItems: 'flex-start',
-            paddingTop: '12px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '100%',
+            maxWidth: '440px',
             zIndex: 100
-        }}>
-            {tabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                    <button
-                        key={tab.id}
-                        onClick={() => onTabChange(tab.id)}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '6px',
-                            cursor: 'pointer',
-                            width: '64px'
-                        }}
-                    >
-                        <Icon
-                            size={24}
-                            color={isActive ? 'var(--primary)' : 'var(--text-dim)'}
-                            strokeWidth={isActive ? 2.5 : 2}
-                        />
-                        <span style={{
-                            fontSize: '10px',
-                            fontWeight: isActive ? 600 : 500,
-                            color: isActive ? 'var(--text-main)' : 'var(--text-dim)'
-                        }}>
-                            {tab.label}
-                        </span>
-                    </button>
-                );
-            })}
-        </nav>
+        }} className="glass-nav">
+            <div style={{
+                display: 'flex',
+                justifyContent: 'space-around',
+                padding: '12px 0 24px 0' // Extra bottom padding for iOS Home Indicator
+            }}>
+                {navItems.map((item) => {
+                    const isActive = activeTab === item.id;
+                    const Icon = item.icon;
+
+                    return (
+                        <button
+                            key={item.id}
+                            onClick={() => onTabChange(item.id)}
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '4px',
+                                width: '64px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <div style={{
+                                transition: 'all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                                transform: isActive ? 'translateY(-2px)' : 'none',
+                                color: isActive ? '#000000' : '#A0A0A5' // Black active, gray inactive
+                            }}>
+                                <Icon size={26} strokeWidth={isActive ? 2.5 : 2} />
+                            </div>
+                            <span style={{
+                                fontSize: '10px',
+                                fontWeight: isActive ? '700' : '500',
+                                color: isActive ? '#000000' : '#A0A0A5',
+                                transition: 'color 0.2s'
+                            }}>
+                                {item.label}
+                            </span>
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
     );
 };

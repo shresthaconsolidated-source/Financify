@@ -72,7 +72,7 @@ export const SettingsView = () => {
         <div style={{ padding: '1.25rem', paddingBottom: '6rem' }} className="fade-in">
             <h1 style={{ marginBottom: '2rem' }}>Settings</h1>
 
-            {/* Data Management Section (NEW) */}
+            {/* Data Management Section */}
             <section style={{ marginBottom: '2rem' }}>
                 <h3 style={{ marginBottom: '1rem', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase' }}>Data Management</h3>
                 <div className="ios-card">
@@ -100,14 +100,14 @@ export const SettingsView = () => {
                                 <FileText size={18} style={{ marginRight: '0.5rem' }} /> Get Excel Template
                             </button>
                             <div style={{ flex: 1, position: 'relative' }}>
-                                <button className="btn btn-primary" style={{ width: '100%', height: 'auto', padding: '0.8rem', fontSize: '0.85rem', color: '#000' }}>
+                                <button className="btn btn-primary" style={{ width: '100%', height: 'auto', padding: '0.8rem', fontSize: '0.85rem', color: '#fff' }}>
                                     <Upload size={18} style={{ marginRight: '0.5rem' }} /> Upload Excel
                                 </button>
                                 <input type="file" accept=".xlsx, .xls" onChange={(e) => handleFileUpload(e, 'EXCEL')} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }} />
                             </div>
                         </div>
 
-                        {importStatus && <div style={{ fontSize: '0.8rem', color: 'var(--primary)', textAlign: 'center' }}>{importStatus}</div>}
+                        {importStatus && <div style={{ fontSize: '0.8rem', color: '#34C759', textAlign: 'center' }}>{importStatus}</div>}
                     </div>
                 </div>
             </section>
@@ -158,7 +158,7 @@ export const SettingsView = () => {
                                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{acc.assetClass || acc.type}</div>
                                 </div>
                             </div>
-                            <div style={{ color: 'var(--text-bright)', fontWeight: '600' }}>{data.user.currency}{Number(acc.balance).toLocaleString()}</div>
+                            <div style={{ color: 'var(--text-main)', fontWeight: '600' }}>{data.user.currency}{Number(acc.balance).toLocaleString()}</div>
                         </div>
                     ))}
                 </div>
@@ -207,9 +207,9 @@ export const SettingsView = () => {
                 </div>
             </section>
 
-            {/* Currency Section & Modals... (Reuse previous) */}
-            <section style={{ marginBottom: '2rem' }}>
-                <h3 style={{ marginBottom: '1rem', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase' }}>Global Currency</h3>
+            {/* Currency Section with Version Display */}
+            <section style={{ marginBottom: '4rem' }}>
+                <h3 style={{ marginBottom: '1rem', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: '600', textTransform: 'uppercase' }}>Global Currency</h3>
                 <div className="ios-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                         <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Active Symbol</div>
@@ -218,40 +218,59 @@ export const SettingsView = () => {
                                 autoFocus
                                 value={tempCurrency}
                                 onChange={e => setTempCurrency(e.target.value)}
-                                style={{ background: 'black', border: '1px solid var(--primary)', color: 'var(--primary)', width: '60px', borderRadius: '8px', padding: '0.25rem', fontSize: '1.5rem', fontWeight: '700', marginTop: '0.25rem' }}
+                                style={{
+                                    background: '#F2F2F2', /* High contrast against white card */
+                                    border: '1px solid #E5E5EA',
+                                    color: '#000000',
+                                    width: '80px',
+                                    borderRadius: '12px',
+                                    padding: '0.4rem',
+                                    fontSize: '1.5rem',
+                                    fontWeight: '800',
+                                    marginTop: '0.5rem',
+                                    textAlign: 'center'
+                                }}
                                 onBlur={handleSaveCurrency}
                                 onKeyDown={e => e.key === 'Enter' && handleSaveCurrency()}
                             />
                         ) : (
-                            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--primary)', marginTop: '0.25rem' }}>{data.user.currency}</div>
+                            <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--primary)', marginTop: '0.25rem' }}>{data.user.currency}</div>
                         )}
                     </div>
-                    <button className="btn btn-soft" onClick={() => setEditingCurrency(true)}>
-                        <Edit2 size={18} />
+                    <button className="btn btn-soft" onClick={() => setEditingCurrency(true)} style={{ width: '48px', height: '48px', borderRadius: '50%' }}>
+                        <Edit2 size={20} />
                     </button>
+                </div>
+
+                {/* Version Display */}
+                <div style={{ textAlign: 'center', marginTop: '2rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                    <div style={{ fontWeight: '700', marginBottom: '0.2rem' }}>Financify</div>
+                    <div>v5.0.0 (Premium)</div>
                 </div>
             </section>
 
             {/* Reuse Modals... */}
             {activeModal && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-                    <div className="ios-card" style={{ width: '100%', maxWidth: '350px' }}>
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(5px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+                    <div className="ios-card" style={{ width: '100%', maxWidth: '350px', boxShadow: '0 20px 50px rgba(0,0,0,0.2)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                             <h3>
                                 {activeModal === 'ACCOUNT' && 'New Account'}
                                 {activeModal === 'ASSET_CLASS' && 'New Asset Class'}
                                 {activeModal.includes('CATEGORY') && 'New Category'}
                             </h3>
-                            <X style={{ cursor: 'pointer' }} onClick={() => { setActiveModal(null); setNewItemName(''); }} />
+                            <button style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => { setActiveModal(null); setNewItemName(''); }}>
+                                <X size={24} color="#000" />
+                            </button>
                         </div>
 
                         {activeModal === 'ACCOUNT' ? (
                             <form onSubmit={handleSaveAccount} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                 <input className="input" placeholder="Account Name" value={newAccount.name} onChange={e => setNewAccount({ ...newAccount, name: e.target.value })} autoFocus required />
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <button type="button" className={`btn ${newAccount.type === 'BANK' ? 'btn-primary' : 'btn-soft'}`} style={{ padding: '0.5rem', fontSize: '0.8rem' }} onClick={() => setNewAccount({ ...newAccount, type: 'BANK', subtype: '' })}>Bank</button>
-                                    <button type="button" className={`btn ${newAccount.type === 'CASH' ? 'btn-primary' : 'btn-soft'}`} style={{ padding: '0.5rem', fontSize: '0.8rem' }} onClick={() => setNewAccount({ ...newAccount, type: 'CASH', subtype: '' })}>Cash</button>
-                                    <button type="button" className={`btn ${newAccount.type === 'ASSET' ? 'btn-primary' : 'btn-soft'}`} style={{ padding: '0.5rem', fontSize: '0.8rem' }} onClick={() => setNewAccount({ ...newAccount, type: 'ASSET' })}>Asset</button>
+                                    <button type="button" className={`btn ${newAccount.type === 'BANK' ? 'btn-primary' : 'btn-soft'}`} style={{ padding: '0.8rem', flex: 1 }} onClick={() => setNewAccount({ ...newAccount, type: 'BANK', subtype: '' })}>Bank</button>
+                                    <button type="button" className={`btn ${newAccount.type === 'CASH' ? 'btn-primary' : 'btn-soft'}`} style={{ padding: '0.8rem', flex: 1 }} onClick={() => setNewAccount({ ...newAccount, type: 'CASH', subtype: '' })}>Cash</button>
+                                    <button type="button" className={`btn ${newAccount.type === 'ASSET' ? 'btn-primary' : 'btn-soft'}`} style={{ padding: '0.8rem', flex: 1 }} onClick={() => setNewAccount({ ...newAccount, type: 'ASSET' })}>Asset</button>
                                 </div>
 
                                 {newAccount.type === 'ASSET' && (
@@ -269,19 +288,19 @@ export const SettingsView = () => {
                                 )}
 
                                 <input type="number" className="input" placeholder="Opening Balance" value={newAccount.openingBalance} onChange={e => setNewAccount({ ...newAccount, openingBalance: e.target.value })} />
-                                <button className="btn btn-primary">Save Account</button>
+                                <button className="btn btn-primary" style={{ marginTop: '1rem', padding: '1rem' }}>Save Account</button>
                             </form>
                         ) : (
                             <form onSubmit={handleSaveItem} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                 <input
                                     className="input"
-                                    placeholder={activeModal === 'ASSET_CLASS' ? "Asset Class Name (e.g. Gold)" : "Category Name"}
+                                    placeholder={activeModal === 'ASSET_CLASS' ? "Asset Class Name (e.g. Gold)" : "Category Name (e.g. 🍔 Food)"}
                                     value={newItemName}
                                     onChange={e => setNewItemName(e.target.value)}
                                     autoFocus
                                     required
                                 />
-                                <button className="btn btn-primary">Save</button>
+                                <button className="btn btn-primary" style={{ marginTop: '0.5rem', padding: '1rem' }}>Save</button>
                             </form>
                         )}
                     </div>
