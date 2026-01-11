@@ -1,4 +1,4 @@
-import XLSX from 'xlsx';
+import * as XLSX from 'xlsx';
 
 export const generateSmartTemplate = (accounts, categories) => {
     // 1. Prepare Data
