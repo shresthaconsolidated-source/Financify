@@ -48,7 +48,14 @@ export const TransactionHistory = () => {
             }
 
             // Type filter
-            if (filterType && tx.type !== filterType) return false;
+            if (filterType) {
+                if (filterType === 'UNDEFINED') {
+                    const category = getCategory(tx.categoryId);
+                    if (category) return false; // Has a category, filter it out
+                } else if (tx.type !== filterType) {
+                    return false;
+                }
+            }
 
             // Account filter
             if (filterAccount && tx.accountId !== filterAccount) return false;
@@ -153,6 +160,7 @@ export const TransactionHistory = () => {
                         <option value="INCOME">Income</option>
                         <option value="EXPENSE">Expense</option>
                         <option value="TRANSFER">Transfer</option>
+                        <option value="UNDEFINED">❓ Undefined</option>
                     </select>
 
                     <select
