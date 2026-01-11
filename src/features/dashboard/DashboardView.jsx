@@ -250,18 +250,17 @@ export const DashboardView = ({ onNavigate }) => {
                                     <div style={{
                                         fontWeight: 700,
                                         fontSize: '1.0625rem',
-                                        color: tx.type === 'INCOME' ? var(--success)' : 'var(--text-primary)',
-                                    fontVariantNumeric: 'tabular-nums'
+                                        color: tx.type === 'INCOME' ? 'var(--success)' : 'var(--text-primary)',
+                                        fontVariantNumeric: 'tabular-nums'
                                     }}>
-                                    {tx.type === 'INCOME' ? '+' : '-'}{data.user.currency}{Number(tx.amount).toLocaleString()}
+                                        {tx.type === 'INCOME' ? '+' : '-'}{data.user.currency}{Number(tx.amount).toLocaleString()}
+                                    </div>
                                 </div>
-                                </div>
-                    );
+                            );
                         })}
+                    </div>
                 </div>
-                </div>
-    )
-}
-        </div >
+            )}
+        </div>
     );
 };
