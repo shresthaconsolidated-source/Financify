@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useWealth } from '../../context/WealthContext';
-import { Plus, TrendingUp, TrendingDown, Arrow Right } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 import { format, subMonths, startOfMonth, endOfMonth, eachMonthOfInterval, differenceInMonths } from 'date-fns';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
