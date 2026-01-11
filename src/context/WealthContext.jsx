@@ -265,7 +265,7 @@ export const WealthProvider = ({ children }) => {
                 // 4. Create Transaction
                 const newTx = {
                     id: uuidv4(),
-                    date: new Date(date).toISOString(), // Excel dates might need parsing if raw number, but assuming string 'YYYY-MM-DD' for now
+                    date: date.includes('-') ? `${date}T00:00:00.000Z` : new Date(date).toISOString(),
                     type: type,
                     amount: amount,
                     accountId: account.id,
