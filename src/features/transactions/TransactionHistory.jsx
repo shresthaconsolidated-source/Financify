@@ -1,9 +1,10 @@
 import React from 'react';
 import { useWealth } from '../../context/WealthContext';
 import { format, isToday, isYesterday } from 'date-fns';
+import { Trash2 } from 'lucide-react';
 
 export const TransactionHistory = () => {
-    const { data } = useWealth();
+    const { data, deleteTransaction } = useWealth();
 
     const sortedTx = [...data.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
     const getAccountName = (id) => data.accounts.find(a => a.id === id)?.name || 'Unknown';
@@ -89,13 +90,34 @@ export const TransactionHistory = () => {
                                                 {tx.note || getAccountName(tx.accountId)}
                                             </div>
                                         </div>
-                                        <div style={{
-                                            fontWeight: 700,
-                                            fontSize: '1.0625rem',
-                                            color: isIncome ? 'var(--success)' : 'var(--text-primary)',
-                                            fontVariantNumeric: 'tabular-nums'
-                                        }}>
-                                            {isIncome && '+'}{isExpense && '-'}{data.user.currency}{Number(tx.amount).toLocaleString()}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                            <div style={{
+                                                fontWeight: 700,
+                                                fontSize: '1.0625rem',
+                                                color: isIncome ? 'var(--success)' : 'var(--text-primary)',
+                                                fontVariantNumeric: 'tabular-nums'
+                                            }}>
+                                                {isIncome && '+'}{isExpense && '-'}{data.user.currency}{Number(tx.amount).toLocaleString()}
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    if (window.confirm('Delete this transaction? This will update your account balance.')) {
+                                                        deleteTransaction(tx.id);
+                                                    }
+                                                }}
+                                                style={{
+                                                    background: 'var(--danger-bg)',
+                                                    border: 'none',
+                                                    borderRadius: '8px',
+                                                    padding: '0.5rem',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                            >
+                                                <Trash2 size={14} color="var(--danger)" />
+                                            </button>
                                         </div>
                                     </div>
                                 );

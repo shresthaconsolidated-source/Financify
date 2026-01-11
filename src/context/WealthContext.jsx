@@ -73,6 +73,92 @@ export const WealthProvider = ({ children }) => {
         });
     };
 
+    const updateTransaction = (txId, updates) => {
+        setData(prev => {
+            const oldTx = prev.transactions.find(t => t.id === txId);
+            if (!oldTx) return prev;
+
+            // Reverse old transaction effects on balances
+            let newAccounts = [...prev.accounts];
+
+            if (oldTx.type === 'INCOME') {
+                const accIndex = newAccounts.findIndex(a => a.id === oldTx.accountId);
+                if (accIndex >= 0) {
+                    newAccounts[accIndex].balance = Number(newAccounts[accIndex].balance) - Number(oldTx.amount);
+                }
+            } else if (oldTx.type === 'EXPENSE') {
+                const accIndex = newAccounts.findIndex(a => a.id === oldTx.accountId);
+                if (accIndex >= 0) {
+                    newAccounts[accIndex].balance = Number(newAccounts[accIndex].balance) + Number(oldTx.amount);
+                }
+            } else if (oldTx.type === 'TRANSFER') {
+                const fromIndex = newAccounts.findIndex(a => a.id === oldTx.accountId);
+                const toIndex = newAccounts.findIndex(a => a.id === oldTx.toAccountId);
+                if (fromIndex >= 0) newAccounts[fromIndex].balance = Number(newAccounts[fromIndex].balance) + Number(oldTx.amount);
+                if (toIndex >= 0) newAccounts[toIndex].balance = Number(newAccounts[toIndex].balance) - Number(oldTx.amount);
+            }
+
+            // Apply new transaction
+            const newTx = { ...oldTx, ...updates };
+
+            if (newTx.type === 'INCOME') {
+                const accIndex = newAccounts.findIndex(a => a.id === newTx.accountId);
+                if (accIndex >= 0) {
+                    newAccounts[accIndex].balance = Number(newAccounts[accIndex].balance) + Number(newTx.amount);
+                }
+            } else if (newTx.type === 'EXPENSE') {
+                const accIndex = newAccounts.findIndex(a => a.id === newTx.accountId);
+                if (accIndex >= 0) {
+                    newAccounts[accIndex].balance = Number(newAccounts[accIndex].balance) - Number(newTx.amount);
+                }
+            } else if (newTx.type === 'TRANSFER') {
+                const fromIndex = newAccounts.findIndex(a => a.id === newTx.accountId);
+                const toIndex = newAccounts.findIndex(a => a.id === newTx.toAccountId);
+                if (fromIndex >= 0) newAccounts[fromIndex].balance = Number(newAccounts[fromIndex].balance) - Number(newTx.amount);
+                if (toIndex >= 0) newAccounts[toIndex].balance = Number(newAccounts[toIndex].balance) + Number(newTx.amount);
+            }
+
+            return {
+                ...prev,
+                accounts: newAccounts,
+                transactions: prev.transactions.map(t => t.id === txId ? newTx : t)
+            };
+        });
+    };
+
+    const deleteTransaction = (txId) => {
+        setData(prev => {
+            const tx = prev.transactions.find(t => t.id === txId);
+            if (!tx) return prev;
+
+            // Reverse transaction effects
+            let newAccounts = [...prev.accounts];
+
+            if (tx.type === 'INCOME') {
+                const accIndex = newAccounts.findIndex(a => a.id === tx.accountId);
+                if (accIndex >= 0) {
+                    newAccounts[accIndex].balance = Number(newAccounts[accIndex].balance) - Number(tx.amount);
+                }
+            } else if (tx.type === 'EXPENSE') {
+                const accIndex = newAccounts.findIndex(a => a.id === tx.accountId);
+                if (accIndex >= 0) {
+                    newAccounts[accIndex].balance = Number(newAccounts[accIndex].balance) + Number(tx.amount);
+                }
+            } else if (tx.type === 'TRANSFER') {
+                const fromIndex = newAccounts.findIndex(a => a.id === tx.accountId);
+                const toIndex = newAccounts.findIndex(a => a.id === tx.toAccountId);
+                if (fromIndex >= 0) newAccounts[fromIndex].balance = Number(newAccounts[fromIndex].balance) + Number(tx.amount);
+                if (toIndex >= 0) newAccounts[toIndex].balance = Number(newAccounts[toIndex].balance) - Number(tx.amount);
+            }
+
+            return {
+                ...prev,
+                accounts: newAccounts,
+                transactions: prev.transactions.filter(t => t.id !== txId)
+            };
+        });
+    };
+
     const addAccount = (account) => {
         const newAccount = { ...account, id: uuidv4(), balance: Number(account.openingBalance) };
         setData(prev => ({
@@ -242,6 +328,8 @@ export const WealthProvider = ({ children }) => {
         data,
         loading,
         addTransaction,
+        updateTransaction,
+        deleteTransaction,
         addAccount,
         updateAccount,
         deleteAccount,
