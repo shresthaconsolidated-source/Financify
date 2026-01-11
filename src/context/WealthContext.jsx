@@ -208,6 +208,27 @@ export const WealthProvider = ({ children }) => {
         return rows.length;
     };
 
+    const addGoal = (goal) => {
+        setData(prev => ({
+            ...prev,
+            goals: [...(prev.goals || []), { ...goal, id: uuidv4() }]
+        }));
+    };
+
+    const updateGoal = (goalId, updates) => {
+        setData(prev => ({
+            ...prev,
+            goals: prev.goals.map(g => g.id === goalId ? { ...g, ...updates } : g)
+        }));
+    };
+
+    const deleteGoal = (goalId) => {
+        setData(prev => ({
+            ...prev,
+            goals: prev.goals.filter(g => g.id !== goalId)
+        }));
+    };
+
     const value = {
         data,
         loading,
@@ -220,7 +241,10 @@ export const WealthProvider = ({ children }) => {
         addAssetClass,
         deleteAssetClass,
         importData,
-        importExcelTransactions
+        importExcelTransactions,
+        addGoal,
+        updateGoal,
+        deleteGoal
     };
 
     return (
