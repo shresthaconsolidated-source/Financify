@@ -50,8 +50,9 @@ export const TransactionHistory = () => {
             // Type filter
             if (filterType) {
                 if (filterType === 'UNDEFINED') {
-                    const category = getCategory(tx.categoryId);
-                    if (category) return false; // Has a category, filter it out
+                    // Show only transactions with undefined/invalid types
+                    const validTypes = ['INCOME', 'EXPENSE', 'TRANSFER'];
+                    if (validTypes.includes(tx.type)) return false;
                 } else if (tx.type !== filterType) {
                     return false;
                 }
