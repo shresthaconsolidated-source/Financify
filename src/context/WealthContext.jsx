@@ -236,8 +236,8 @@ export const WealthProvider = ({ children }) => {
                 const findAccount = (name) => newAccounts.find(a => a.name.toLowerCase() === name.toLowerCase());
                 const findCategory = (name) => newCategories.find(c => c.name.toLowerCase() === name.toLowerCase());
 
-                // 2. Account Logic (Auto-Create)
-                let account = findAccount(accountName);
+                // 2. Account Logic (Auto-Create) - Check against growing array
+                let account = newAccounts.find(a => a.name.toLowerCase() === accountName.toLowerCase());
                 if (!account) {
                     account = {
                         id: uuidv4(),
@@ -249,10 +249,10 @@ export const WealthProvider = ({ children }) => {
                     newAccounts.push(account);
                 }
 
-                // 2b. For transfers, handle To Account
+                // 2b. For transfers, handle To Account - Check against growing array
                 let toAccount = null;
                 if (type === 'TRANSFER' && toAccountName) {
-                    toAccount = findAccount(toAccountName);
+                    toAccount = newAccounts.find(a => a.name.toLowerCase() === toAccountName.toLowerCase());
                     if (!toAccount) {
                         toAccount = {
                             id: uuidv4(),
