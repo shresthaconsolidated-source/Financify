@@ -95,31 +95,42 @@ export const parseExcel = (file) => {
         reader.onload = (e) => {
             try {
                 const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
+                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
 
                 // Expect first sheet to be transactions
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
 
-                // Convert to JSON
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // Array of Arrays
+                // Convert to JSON - use default settings to get actual values
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
 
                 // Headers: Date, Type, Amount, Account, Category, Note
                 // Remove header row
                 const rows = jsonData.slice(1).map(row => {
-                    // row indexes allow us to map safely even if columns act weird
                     const [date, type, amount, accountName, categoryName, note] = row;
                     if (!date || !amount) return null;
 
-                    // Convert Excel serial date to proper date string
+                    // Robust date parsing
                     let dateStr;
                     if (typeof date === 'number') {
-                        // Excel serial date (days since 1900-01-01)
-                        const excelDate = XLSX.SSF.parse_date_code(date);
-                        dateStr = `${excelDate.y}-${String(excelDate.m).padStart(2, '0')}-${String(excelDate.d).padStart(2, '0')}`;
+                        // Excel serial date (days since 1900-01-01, but Excel incorrectly treats 1900 as a leap year)
+                        // Using XLSX's built-in date conversion
+                        const jsDate = new Date((date - 25569) * 86400 * 1000); // Convert Excel serial to JS timestamp
+                        dateStr = jsDate.toISOString().split('T')[0]; // Get YYYY-MM-DD
+                    } else if (date instanceof Date) {
+                        // Already a Date object
+                        dateStr = date.toISOString().split('T')[0];
                     } else {
-                        // Already a string, just trim
-                        dateStr = String(date).trim();
+                        // String - try to parse it
+                        const str = String(date).trim();
+                        // Check if it's already YYYY-MM-DD format
+                        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+                            dateStr = str;
+                        } else {
+                            // Try to parse as date
+                            const parsed = new Date(str);
+                            dateStr = isNaN(parsed.getTime()) ? str : parsed.toISOString().split('T')[0];
+                        }
                     }
 
                     return {
