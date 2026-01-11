@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useWealth } from '../../context/WealthContext';
-import { Plus, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
-import { format } from 'date-fns';
+import { Plus, TrendingUp, TrendingDown, Arrow Right } from 'lucide-react';
+import { format, subMonths, startOfMonth, endOfMonth, eachMonthOfInterval, differenceInMonths } from 'date-fns';
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export const DashboardView = ({ onNavigate }) => {
     const { data } = useWealth();
+
+    // Chart state
+    const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
+    const [netWorthPeriod, setNetWorthPeriod] = useState('All');
+    const [trendPeriod, setTrendPeriod] = useState('1Y');
 
     const totalNetWorth = data?.accounts.reduce((sum, acc) => sum + Number(acc.balance), 0) || 0;
 
@@ -13,6 +19,131 @@ export const DashboardView = ({ onNavigate }) => {
     const monthlyTx = data?.transactions.filter(t => t.date.startsWith(currentMonth)) || [];
     const income = monthlyTx.filter(t => t.type === 'INCOME').reduce((s, t) => s + Number(t.amount), 0);
     const expense = monthlyTx.filter(t => t.type === 'EXPENSE').reduce((s, t) => s + Number(t.amount), 0);
+
+    // Get available months from transactions
+    const availableMonths = useMemo(() => {
+        const months = new Set();
+        data?.transactions.forEach(tx => {
+            const monthKey = format(new Date(tx.date), 'yyyy-MM');
+            months.add(monthKey);
+        });
+        return Array.from(months).sort().reverse();
+    }, [data?.transactions]);
+
+    // Pie chart data for selected month
+    const monthlyPieData = useMemo(() => {
+        const txForMonth = data?.transactions.filter(t => t.date.startsWith(selectedMonth)) || [];
+        const monthIncome = txForMonth.filter(t => t.type === 'INCOME').reduce((s, t) => s + Number(t.amount), 0);
+        const monthExpense = txForMonth.filter(t => t.type === 'EXPENSE').reduce((s, t) => s + Number(t.amount), 0);
+
+        return [
+            { name: 'Income', value: monthIncome, color: '#4ade80' },
+            { name: 'Expenses', value: monthExpense, color: '#f87171' }
+        ];
+    }, [data?.transactions, selectedMonth]);
+
+    // Helper: Calculate time-based filtering
+    const getFilteredTransactions = (period) => {
+        if (period === 'All') return data?.transactions || [];
+
+        const now = new Date();
+        const cutoff = period === '1Y' ? subMonths(now, 12) : period === '6M' ? subMonths(now, 6) : subMonths(now, 3);
+        return data?.transactions.filter(t => new Date(t.date) >= cutoff) || [];
+    };
+
+    // Helper: Smart aggregation (monthly/quarterly/semi-annual based on range)
+    const getAggregationPeriod = (transactions) => {
+        if (!transactions || transactions.length === 0) return 'monthly';
+
+        const dates = transactions.map(t => new Date(t.date)).sort((a, b) => a - b);
+        const months = differenceInMonths(dates[dates.length - 1], dates[0]);
+
+        if (months <= 10) return 'monthly';
+        if (months <= 40) return 'quarterly';
+        return 'semiannual';
+    };
+
+    // Net Worth Growth Data
+    const netWorthData = useMemo(() => {
+        const transactions = getFilteredTransactions(netWorthPeriod).sort((a, b) => new Date(a.date) - new Date(b.date));
+        if (!transactions || transactions.length === 0) return [];
+
+        const aggregation = getAggregationPeriod(transactions);
+        const dataPoints = new Map();
+
+        transactions.forEach(tx => {
+            const date = new Date(tx.date);
+            let key;
+
+            if (aggregation === 'monthly') {
+                key = format(date, 'yyyy-MM');
+            } else if (aggregation === 'quarterly') {
+                const quarter = Math.floor(date.getMonth() / 3) + 1;
+                key = `${date.getFullYear()}-Q${quarter}`;
+            } else {
+                const half = date.getMonth() < 6 ? 'H1' : 'H2';
+                key = `${date.getFullYear()}-${half}`;
+            }
+
+            if (!dataPoints.has(key)) {
+                dataPoints.set(key, { label: key, transactions: [] });
+            }
+            dataPoints.get(key).transactions.push(tx);
+        });
+
+        let runningBalance = data?.accounts.reduce((sum, acc) => sum + Number(acc.balance), 0) || 0;
+
+        // Work backwards from present
+        const sortedKeys = Array.from(dataPoints.keys()).sort().reverse();
+        const result = [];
+
+        sortedKeys.forEach(key => {
+            result.unshift({ label: key, netWorth: runningBalance });
+            const txs = dataPoints.get(key).transactions;
+            txs.forEach(tx => {
+                if (tx.type === 'INCOME') runningBalance -= Number(tx.amount);
+                else if (tx.type === 'EXPENSE') runningBalance += Number(tx.amount);
+            });
+        });
+
+        return result;
+    }, [data?.transactions, data?.accounts, netWorthPeriod]);
+
+    // Income/Expense Trend Data
+    const trendData = useMemo(() => {
+        const transactions = getFilteredTransactions(trendPeriod).sort((a, b) => new Date(a.date) - new Date(b.date));
+        if (!transactions || transactions.length === 0) return [];
+
+        const aggregation = getAggregationPeriod(transactions);
+        const dataPoints = new Map();
+
+        transactions.forEach(tx => {
+            const date = new Date(tx.date);
+            let key;
+
+            if (aggregation === 'monthly') {
+                key = format(date, 'yyyy-MM');
+            } else if (aggregation === 'quarterly') {
+                const quarter = Math.floor(date.getMonth() / 3) + 1;
+                key = `${date.getFullYear()}-Q${quarter}`;
+            } else {
+                const half = date.getMonth() < 6 ? 'H1' : 'H2';
+                key = `${date.getFullYear()}-${half}`;
+            }
+
+            if (!dataPoints.has(key)) {
+                dataPoints.set(key, { label: key, income: 0, expense: 0 });
+            }
+
+            if (tx.type === 'INCOME') {
+                dataPoints.get(key).income += Number(tx.amount);
+            } else if (tx.type === 'EXPENSE') {
+                dataPoints.get(key).expense += Number(tx.amount);
+            }
+        });
+
+        return Array.from(dataPoints.values()).sort((a, b) => a.label.localeCompare(b.label));
+    }, [data?.transactions, trendPeriod]);
 
     return (
         <div style={{ padding: '1.5rem 1.25rem', position: 'relative', zIndex: 1 }}>
@@ -37,7 +168,7 @@ export const DashboardView = ({ onNavigate }) => {
                             fontWeight: 600,
                             letterSpacing: '0.05em'
                         }}>
-                            v6.7.1
+                            v6.8.0
                         </div>
                     </div>
                     <div className="avatar">
@@ -254,75 +385,120 @@ export const DashboardView = ({ onNavigate }) => {
                 </div>
             )}
 
-            {/* Recent Transactions */}
+            {/* Financial Charts */}
             {data?.transactions.length > 0 && (
                 <div>
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '1rem'
-                    }}>
-                        <h3>Recent Activity</h3>
-                        <button
-                            onClick={() => onNavigate('transactions')}
-                            style={{
-                                background: 'none',
-                                border: 'none',
-                                color: 'var(--text-secondary)',
-                                fontSize: '0.875rem',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.25rem'
-                            }}
-                        >
-                            View All
-                            <ArrowRight size={14} />
-                        </button>
+                    <h3 style={{ marginBottom: '1.5rem' }}>Financial Insights</h3>
+
+                    {/* Pie Chart - Monthly Income vs Expense */}
+                    <div className="glass-card" style={{ padding: '1rem', marginBottom: '1rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <h4 style={{ fontSize: '0.875rem', fontWeight: 600 }}>Income vs Expenses</h4>
+                            <select
+                                value={selectedMonth}
+                                onChange={(e) => setSelectedMonth(e.target.value)}
+                                className="input"
+                                style={{ width: 'auto', padding: '0.5rem', fontSize: '0.75rem' }}
+                            >
+                                {availableMonths.map(month => (
+                                    <option key={month} value={month}>
+                                        {format(new Date(month + '-01'), 'MMM yyyy')}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <ResponsiveContainer width="100%" height={200}>
+                            <PieChart>
+                                <Pie
+                                    data={monthlyPieData}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                    outerRadius={70}
+                                    fill="#8884d8"
+                                    dataKey="value"
+                                >
+                                    {monthlyPieData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <Tooltip formatter={(value) => `${data.user.currency}${value.toLocaleString()}`} />
+                            </PieChart>
+                        </ResponsiveContainer>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        {data.transactions.slice(0, 4).map(tx => {
-                            const category = data.categories.find(c => c.id === tx.categoryId);
-                            const account = data.accounts.find(a => a.id === tx.accountId);
+                    {/* Net Worth Growth Chart */}
+                    <div className="glass-card" style={{ padding: '1rem', marginBottom: '1rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <h4 style={{ fontSize: '0.875rem', fontWeight: 600 }}>Net Worth Growth</h4>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                {['All', '1Y', '6M', '3M'].map(period => (
+                                    <button
+                                        key={period}
+                                        onClick={() => setNetWorthPeriod(period)}
+                                        style={{
+                                            padding: '0.375rem 0.75rem',
+                                            fontSize: '0.6875rem',
+                                            fontWeight: 600,
+                                            background: netWorthPeriod === period ? 'var(--primary)' : 'var(--bg-soft)',
+                                            color: netWorthPeriod === period ? '#fff' : 'var(--text-secondary)',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {period}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <ResponsiveContainer width="100%" height={200}>
+                            <LineChart data={netWorthData}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
+                                <XAxis dataKey="label" tick={{ fontSize: 10 }} stroke="var(--text-tertiary)" />
+                                <YAxis tick={{ fontSize: 10 }} stroke="var(--text-tertiary)" tickFormatter={(val) => `${val / 1000}k`} />
+                                <Tooltip formatter={(value) => `${data.user.currency}${value.toLocaleString()}`} />
+                                <Line type="monotone" dataKey="netWorth" stroke="#667eea" strokeWidth={2} dot={{ r: 3 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
 
-                            return (
-                                <div key={tx.id} className="list-item">
-                                    <div style={{
-                                        fontSize: '1.75rem',
-                                        width: '56px',
-                                        height: '56px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        background: tx.type === 'INCOME'
-                                            ? 'rgba(16, 185, 129, 0.08)'
-                                            : 'rgba(239, 68, 68, 0.08)',
-                                        borderRadius: '14px'
-                                    }}>
-                                        {category?.icon || '💸'}
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontWeight: 600, fontSize: '0.9375rem', marginBottom: '0.125rem' }}>
-                                            {category?.name || 'Unknown'}
-                                        </div>
-                                        <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                                            {account?.name} • {format(new Date(tx.date), 'MMM d')}
-                                        </div>
-                                    </div>
-                                    <div style={{
-                                        fontWeight: 700,
-                                        fontSize: '1.0625rem',
-                                        color: tx.type === 'INCOME' ? 'var(--success)' : 'var(--text-primary)',
-                                        fontVariantNumeric: 'tabular-nums'
-                                    }}>
-                                        {tx.type === 'INCOME' ? '+' : '-'}{data.user.currency}{Number(tx.amount).toLocaleString()}
-                                    </div>
-                                </div>
-                            );
-                        })}
+                    {/* Income/Expense Trend Chart */}
+                    <div className="glass-card" style={{ padding: '1rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <h4 style={{ fontSize: '0.875rem', fontWeight: 600 }}>Income & Expense Trend</h4>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                {['All', '1Y', '6M', '3M'].map(period => (
+                                    <button
+                                        key={period}
+                                        onClick={() => setTrendPeriod(period)}
+                                        style={{
+                                            padding: '0.375rem 0.75rem',
+                                            fontSize: '0.6875rem',
+                                            fontWeight: 600,
+                                            background: trendPeriod === period ? 'var(--primary)' : 'var(--bg-soft)',
+                                            color: trendPeriod === period ? '#fff' : 'var(--text-secondary)',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {period}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <ResponsiveContainer width="100%" height={200}>
+                            <LineChart data={trendData}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
+                                <XAxis dataKey="label" tick={{ fontSize: 10 }} stroke="var(--text-tertiary)" />
+                                <YAxis tick={{ fontSize: 10 }} stroke="var(--text-tertiary)" tickFormatter={(val) => `${val / 1000}k`} />
+                                <Tooltip formatter={(value) => `${data.user.currency}${value.toLocaleString()}`} />
+                                <Line type="monotone" dataKey="income" stroke="#4ade80" strokeWidth={2} dot={{ r: 3 }} />
+                                <Line type="monotone" dataKey="expense" stroke="#f87171" strokeWidth={2} dot={{ r: 3 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
             )}
