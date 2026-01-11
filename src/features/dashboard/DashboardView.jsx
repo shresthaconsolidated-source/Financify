@@ -130,7 +130,7 @@ export const DashboardView = ({ onNavigate }) => {
                 </button>
             </div>
 
-            {/* Accounts Section */}
+            {/* Bank & Cash Section */}
             <div style={{ marginBottom: '2rem' }}>
                 <div style={{
                     display: 'flex',
@@ -138,56 +138,94 @@ export const DashboardView = ({ onNavigate }) => {
                     alignItems: 'center',
                     marginBottom: '1rem'
                 }}>
-                    <h3>Your Accounts</h3>
-                    <button
-                        onClick={() => onNavigate('settings')}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--text-secondary)',
-                            fontSize: '0.875rem',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.25rem'
-                        }}
-                    >
-                        View All
-                        <ArrowRight size={14} />
-                    </button>
+                    <h3>Bank & Cash</h3>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                        {data.user.currency}{data.accounts.filter(a => a.type === 'BANK' || a.type === 'CASH').reduce((sum, a) => sum + Number(a.balance), 0).toLocaleString()}
+                    </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {data?.accounts.slice(0, 4).map(acc => (
+                    {data?.accounts.filter(a => a.type === 'BANK' || a.type === 'CASH').map(acc => (
                         <div key={acc.id} className="list-item">
                             <div style={{
-                                fontSize: '1.75rem',
-                                width: '56px',
-                                height: '56px',
+                                fontSize: '1.5rem',
+                                width: '48px',
+                                height: '48px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08))',
-                                borderRadius: '14px'
+                                background: 'var(--bg-soft)',
+                                borderRadius: '12px'
                             }}>
-                                {acc.type === 'BANK' ? '🏦' : acc.type === 'CASH' ? '💵' : '📈'}
+                                {acc.type === 'BANK' ? '🏦' : '💵'}
                             </div>
                             <div style={{ flex: 1 }}>
                                 <div style={{ fontWeight: 600, fontSize: '0.9375rem', marginBottom: '0.125rem' }}>
                                     {acc.name}
                                 </div>
-                                <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                                    {acc.assetClass || acc.type}
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                                    {acc.type}
                                 </div>
                             </div>
-                            <div style={{ fontWeight: 700, fontSize: '1.0625rem', fontVariantNumeric: 'tabular-nums' }}>
+                            <div style={{ fontWeight: 700, fontSize: '1rem', fontVariantNumeric: 'tabular-nums' }}>
                                 {data.user.currency}{Number(acc.balance).toLocaleString()}
                             </div>
                         </div>
                     ))}
+                    {data?.accounts.filter(a => a.type === 'BANK' || a.type === 'CASH').length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-tertiary)', fontSize: '0.875rem' }}>
+                            No bank or cash accounts yet
+                        </div>
+                    )}
                 </div>
             </div>
+
+            {/* Assets Section */}
+            {data?.accounts.filter(a => a.type === 'ASSET').length > 0 && (
+                <div style={{ marginBottom: '2rem' }}>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '1rem'
+                    }}>
+                        <h3>Assets</h3>
+                        <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                            {data.user.currency}{data.accounts.filter(a => a.type === 'ASSET').reduce((sum, a) => sum + Number(a.balance), 0).toLocaleString()}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        {data.accounts.filter(a => a.type === 'ASSET').map(acc => (
+                            <div key={acc.id} className="list-item">
+                                <div style={{
+                                    fontSize: '1.5rem',
+                                    width: '48px',
+                                    height: '48px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08))',
+                                    borderRadius: '12px'
+                                }}>
+                                    📈
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: 600, fontSize: '0.9375rem', marginBottom: '0.125rem' }}>
+                                        {acc.name}
+                                    </div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                                        {acc.assetClass || 'Asset'}
+                                    </div>
+                                </div>
+                                <div style={{ fontWeight: 700, fontSize: '1rem', fontVariantNumeric: 'tabular-nums' }}>
+                                    {data.user.currency}{Number(acc.balance).toLocaleString()}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Recent Transactions */}
             {data?.transactions.length > 0 && (
