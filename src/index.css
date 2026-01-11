@@ -1,40 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* FINANCIFY V5 - PREMIUM WHITE */
-  --bg-app: #F5F5F7;
-  /* Apple-style light gray */
-  --bg-card: #FFFFFF;
-  --bg-subtle: #F2F2F2;
-  --bg-input: #FFFFFF;
-
-  --border-subtle: #E5E5EA;
-  /* Very light border */
+  /* LUXURY GLASS PALETTE */
+  --bg-app: #f8f9fa;
+  --text-main: #1a1a1a;
+  --text-muted: #666666;
+  --text-dim: #999999;
 
   --primary: #000000;
-  /* Luxury Black */
-  --primary-bg: #E0E0E0;
+  --white: #ffffff;
 
-  --danger: #FF3B30;
-  /* Apple Red */
-  --danger-bg: rgba(255, 59, 48, 0.1);
-  --success: #34C759;
-  /* Apple Green */
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
 
-  --text-main: #1D1D1F;
-  /* Almost Black */
-  --text-muted: #86868B;
-  --text-dim: #AEAEB2;
+  --radius-card: 28px;
+  --radius-button: 18px;
 
-  --radius-button: 16px;
-  /* Squircle */
-  --radius-card: 24px;
-  --radius-input: 16px;
-
-  --font-main: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-
-  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.04);
-  --shadow-float: 0 12px 40px rgba(0, 0, 0, 0.08);
+  --font-main: 'Manrope', -apple-system, sans-serif;
 }
 
 * {
@@ -45,173 +28,172 @@
 }
 
 body {
-  background-color: var(--bg-app);
-  color: var(--text-main);
   font-family: var(--font-main);
-  -webkit-font-smoothing: antialiased;
+  color: var(--text-main);
+  background: #f4f4f5;
   overflow-x: hidden;
 }
 
-/* --- Typography --- */
-h1 {
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+/* --- MESH GRADIENT BACKGROUND --- */
+/* A subtle, expensive-feeling aura */
+.app-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 15% 50%, rgba(255, 230, 230, 0.4), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(230, 240, 255, 0.4), transparent 25%);
+  background-color: #fcfcfc;
 }
 
-h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-p {
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
-/* --- Layout --- */
 .app-container {
   max-width: 440px;
-  /* Mobile Viewport */
   margin: 0 auto;
   min-height: 100vh;
-  background: var(--bg-app);
   position: relative;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.05);
-  /* Subtle lift on desktop */
+  padding-bottom: 120px;
+  /* Space for floating nav */
 }
 
-/* --- Components --- */
-.ios-card {
-  background: var(--bg-card);
+/* --- GLASS CARDS --- */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-card);
   padding: 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: var(--shadow-card);
-  border: 1px solid rgba(0, 0, 0, 0.02);
-  /* Crispness */
+  margin-bottom: 1.25rem;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* --- TYPOGRAPHY --- */
+h1,
+h2,
+h3 {
+  letter-spacing: -0.03em;
+  color: var(--text-main);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #000 0%, #444 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* --- BUTTONS --- */
 .btn {
   border: none;
   cursor: pointer;
   font-family: var(--font-main);
   font-weight: 700;
-  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: var(--radius-button);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-button);
 }
 
 .btn:active {
   transform: scale(0.96);
 }
 
+/* Glossy Black Button */
 .btn-primary {
-  background: var(--primary);
-  color: #FFFFFF;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  background: #000;
+  color: #fff;
+  padding: 1rem 2rem;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  /* Top speculation */
 }
 
 .btn-soft {
-  background: var(--bg-subtle);
+  background: rgba(0, 0, 0, 0.04);
   color: var(--text-main);
+  backdrop-filter: blur(10px);
 }
 
 .btn-soft:hover {
-  background: #E5E5E5;
+  background: rgba(0, 0, 0, 0.08);
 }
 
-.btn-danger {
-  background: var(--danger-bg);
-  color: var(--danger);
-}
-
+/* --- INPUTS --- */
 .input {
   width: 100%;
-  padding: 1rem;
-  border-radius: var(--radius-input);
-  background: var(--bg-input);
-  border: 2px solid var(--border-subtle);
-  /* Explicit border for visibility */
-  color: var(--text-main);
-  font-size: 1rem;
+  padding: 1.1rem;
+  border-radius: var(--radius-button);
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   font-family: var(--font-main);
+  font-size: 1rem;
   font-weight: 600;
   outline: none;
   transition: all 0.2s;
+  backdrop-filter: blur(10px);
 }
 
 .input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
-/* --- Segmented Control --- */
-.segmented-control {
-  background: var(--bg-subtle);
-  padding: 4px;
-  border-radius: 14px;
-  display: flex;
+/* --- METAL CARD (Wealth Display) --- */
+.metal-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  border-radius: var(--radius-card);
+  padding: 2rem;
+  color: white;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
   position: relative;
+  overflow: hidden;
 }
 
-.segment-btn {
-  flex: 1;
-  padding: 0.6rem 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-align: center;
-  z-index: 2;
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: color 0.2s;
-}
-
-.segment-btn.active {
-  color: var(--text-main);
-}
-
-.segment-indicator {
+/* Shine effect */
+.metal-card::before {
+  content: '';
   position: absolute;
-  top: 4px;
-  bottom: 4px;
-  background: #FFFFFF;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  /* Physical shadow */
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  z-index: 1;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1), transparent 60%);
+  pointer-events: none;
 }
 
-/* --- Animations --- */
+/* --- ANIMATIONS --- */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.fade-in {
-  animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-
-.glass-nav {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border-subtle);
 }
