@@ -10,7 +10,21 @@ export const TransactionHistory = () => {
     const getCategory = (id) => data.categories.find(c => c.id === id);
 
     if (sortedTx.length === 0) {
-        return <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No transactions yet.</div>;
+        return (
+            <div style={{
+                textAlign: 'center',
+                padding: '4rem 2rem',
+                color: 'var(--text-tertiary)'
+            }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📝</div>
+                <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                    No transactions yet
+                </div>
+                <div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                    Add your first transaction to get started
+                </div>
+            </div>
+        );
     }
 
     // Group by Date
@@ -30,40 +44,58 @@ export const TransactionHistory = () => {
                 if (isYesterday(date)) label = 'Yesterday';
 
                 return (
-                    <div key={dateStr} style={{ marginBottom: '1.5rem' }}>
-                        <h3 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem', paddingLeft: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</h3>
-                        <div className="ios-card" style={{ padding: '0' }}>
-                            {grouped[dateStr].map((tx, idx) => {
+                    <div key={dateStr} style={{ marginBottom: '2rem' }}>
+                        <h4 style={{
+                            fontSize: '0.75rem',
+                            color: 'var(--text-secondary)',
+                            marginBottom: '0.75rem',
+                            paddingLeft: '0.5rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            fontWeight: 700
+                        }}>
+                            {label}
+                        </h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            {grouped[dateStr].map((tx) => {
                                 const category = getCategory(tx.categoryId);
                                 const isExpense = tx.type === 'EXPENSE';
                                 const isIncome = tx.type === 'INCOME';
                                 const isTransfer = tx.type === 'TRANSFER';
 
                                 return (
-                                    <div key={tx.id} style={{
-                                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                        padding: '1rem',
-                                        borderBottom: idx === grouped[dateStr].length - 1 ? 'none' : '1px solid var(--border-subtle)'
-                                    }}>
-                                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                                            <div style={{
-                                                width: '32px', height: '32px', borderRadius: '50%', background: 'var(--bg-subtle)',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem'
-                                            }}>
-                                                {isTransfer ? 'arrows_left_right_icon' : (category?.icon || '•')}
+                                    <div key={tx.id} className="list-item">
+                                        <div style={{
+                                            fontSize: '1.75rem',
+                                            width: '56px',
+                                            height: '56px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            background: isIncome
+                                                ? 'rgba(16, 185, 129, 0.08)'
+                                                : isExpense
+                                                    ? 'rgba(239, 68, 68, 0.08)'
+                                                    : 'rgba(102, 126, 234, 0.08)',
+                                            borderRadius: '14px'
+                                        }}>
+                                            {isTransfer ? '🔄' : (category?.icon || '💸')}
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: 600, fontSize: '0.9375rem', marginBottom: '0.125rem' }}>
+                                                {isTransfer ? `Transfer to ${getAccountName(tx.toAccountId)}` : (category?.name || 'Uncategorized')}
                                             </div>
-                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                <span style={{ fontWeight: '500', fontSize: '0.95rem' }}>
-                                                    {isTransfer ? `Transfer to ${getAccountName(tx.toAccountId)}` : (category?.name || 'Uncategorized')}
-                                                </span>
-                                                <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                                                    {tx.note || getAccountName(tx.accountId)}
-                                                </span>
+                                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
+                                                {tx.note || getAccountName(tx.accountId)}
                                             </div>
                                         </div>
-                                        <div style={{ fontWeight: '600', color: isIncome ? 'var(--primary)' : 'var(--text-main)' }}>
-                                            {isExpense ? '' : (isIncome ? '+' : '')}
-                                            {Number(tx.amount).toLocaleString()}
+                                        <div style={{
+                                            fontWeight: 700,
+                                            fontSize: '1.0625rem',
+                                            color: isIncome ? 'var(--success)' : 'var(--text-primary)',
+                                            fontVariantNumeric: 'tabular-nums'
+                                        }}>
+                                            {isIncome && '+'}{isExpense && '-'}{data.user.currency}{Number(tx.amount).toLocaleString()}
                                         </div>
                                     </div>
                                 );

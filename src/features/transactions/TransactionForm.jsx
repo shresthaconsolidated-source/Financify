@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useWealth } from '../../context/WealthContext';
-import { Check } from 'lucide-react';
 
 export const TransactionForm = ({ onSuccess }) => {
     const { data, addTransaction } = useWealth();
@@ -37,62 +36,79 @@ export const TransactionForm = ({ onSuccess }) => {
     const incomeCategories = data.categories.filter(c => c.type === 'INCOME');
     const expenseCategories = data.categories.filter(c => c.type === 'EXPENSE');
 
-    // Calculate position logic for the sliding pill
-    const getIndicatorStyle = () => {
-        // Assuming 3 tabs: 33.33% each
-        if (type === 'EXPENSE') return { left: '4px', width: 'calc(33.33% - 8px)' };
-        if (type === 'INCOME') return { left: '33.33%', width: '33.33%' };
-        if (type === 'TRANSFER') return { left: 'calc(66.66% + 4px)', width: 'calc(33.33% - 8px)' };
-        return {};
-    };
-
     return (
-        <div className="ios-card fade-in" style={{ padding: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>New Transaction</h2>
+        <div className="glass-card" style={{ padding: '2rem' }}>
+            <h3 style={{ fontSize: '1.125rem', marginBottom: '1.5rem', fontWeight: 700 }}>New Transaction</h3>
 
-            {/* Premium Tabs */}
-            <div className="segmented-control">
-                <div className="segment-indicator" style={getIndicatorStyle()}></div>
-
-                <button
-                    type="button"
-                    className={`segment-btn ${type === 'EXPENSE' ? 'active' : ''}`}
-                    onClick={() => setType('EXPENSE')}
-                >
-                    Expense
-                </button>
-                <button
-                    type="button"
-                    className={`segment-btn ${type === 'INCOME' ? 'active' : ''}`}
-                    onClick={() => setType('INCOME')}
-                >
-                    Income
-                </button>
-                <button
-                    type="button"
-                    className={`segment-btn ${type === 'TRANSFER' ? 'active' : ''}`}
-                    onClick={() => setType('TRANSFER')}
-                >
-                    Transfer
-                </button>
+            {/* Type Tabs */}
+            <div style={{
+                display: 'flex',
+                gap: '0.5rem',
+                marginBottom: '2rem',
+                padding: '0.25rem',
+                background: 'var(--bg-soft)',
+                borderRadius: 'var(--radius-md)'
+            }}>
+                {['EXPENSE', 'INCOME', 'TRANSFER'].map((t) => (
+                    <button
+                        key={t}
+                        type="button"
+                        onClick={() => setType(t)}
+                        style={{
+                            flex: 1,
+                            padding: '0.75rem',
+                            background: type === t ? 'white' : 'transparent',
+                            border: 'none',
+                            borderRadius: 'var(--radius-sm)',
+                            fontWeight: type === t ? 700 : 500,
+                            fontSize: '0.875rem',
+                            cursor: 'pointer',
+                            color: type === t ? 'var(--text-primary)' : 'var(--text-secondary)',
+                            boxShadow: type === t ? 'var(--shadow-sm)' : 'none',
+                            transition: 'all 0.2s ease'
+                        }}
+                    >
+                        {t === 'EXPENSE' ? '💸 Expense' : t === 'INCOME' ? '💰 Income' : '🔄 Transfer'}
+                    </button>
+                ))}
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-
-                {/* Amount Hero Input */}
+                {/* Amount */}
                 <div>
-                    <label>ENTER AMOUNT</label>
+                    <label style={{
+                        display: 'block',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        color: 'var(--text-secondary)',
+                        marginBottom: '0.5rem'
+                    }}>
+                        Enter Amount
+                    </label>
                     <div style={{ position: 'relative' }}>
                         <span style={{
-                            position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)',
-                            fontSize: '1.25rem', color: 'var(--text-muted)', fontWeight: '600'
+                            position: 'absolute',
+                            left: '1.25rem',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            fontSize: '1.5rem',
+                            color: 'var(--text-tertiary)',
+                            fontWeight: 600
                         }}>
                             {data.user.currency}
                         </span>
                         <input
                             type="number"
+                            step="0.01"
                             className="input"
-                            style={{ paddingLeft: '3.5rem', fontSize: '1.5rem', height: '60px' }}
+                            style={{
+                                paddingLeft: '3.5rem',
+                                fontSize: '1.75rem',
+                                fontWeight: 700,
+                                height: '70px'
+                            }}
                             value={formData.amount}
                             onChange={e => setFormData({ ...formData, amount: e.target.value })}
                             placeholder="0.00"
@@ -102,10 +118,20 @@ export const TransactionForm = ({ onSuccess }) => {
                     </div>
                 </div>
 
-                {/* Account & Category Row */}
+                {/* Account & Category */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
-                        <label>{type === 'INCOME' ? 'DEPOSIT TO' : 'PAY FROM'}</label>
+                        <label style={{
+                            display: 'block',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            color: 'var(--text-secondary)',
+                            marginBottom: '0.5rem'
+                        }}>
+                            {type === 'INCOME' ? 'Deposit To' : 'Pay From'}
+                        </label>
                         <select
                             className="input"
                             value={formData.accountId}
@@ -121,7 +147,17 @@ export const TransactionForm = ({ onSuccess }) => {
 
                     {type === 'TRANSFER' ? (
                         <div>
-                            <label>TRANSFER TO</label>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                color: 'var(--text-secondary)',
+                                marginBottom: '0.5rem'
+                            }}>
+                                Transfer To
+                            </label>
                             <select
                                 className="input"
                                 value={formData.toAccountId}
@@ -136,7 +172,17 @@ export const TransactionForm = ({ onSuccess }) => {
                         </div>
                     ) : (
                         <div>
-                            <label>CATEGORY</label>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                color: 'var(--text-secondary)',
+                                marginBottom: '0.5rem'
+                            }}>
+                                Category
+                            </label>
                             <select
                                 className="input"
                                 value={formData.categoryId}
@@ -145,17 +191,27 @@ export const TransactionForm = ({ onSuccess }) => {
                             >
                                 <option value="">Select Category</option>
                                 {(type === 'INCOME' ? incomeCategories : expenseCategories).map(cat => (
-                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                                 ))}
                             </select>
                         </div>
                     )}
                 </div>
 
-                {/* Date & Note Row */}
+                {/* Date & Note */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
-                        <label>DATE</label>
+                        <label style={{
+                            display: 'block',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            color: 'var(--text-secondary)',
+                            marginBottom: '0.5rem'
+                        }}>
+                            Date
+                        </label>
                         <input
                             type="date"
                             className="input"
@@ -165,7 +221,17 @@ export const TransactionForm = ({ onSuccess }) => {
                         />
                     </div>
                     <div>
-                        <label>NOTE</label>
+                        <label style={{
+                            display: 'block',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            color: 'var(--text-secondary)',
+                            marginBottom: '0.5rem'
+                        }}>
+                            Note
+                        </label>
                         <input
                             type="text"
                             className="input"
@@ -176,7 +242,16 @@ export const TransactionForm = ({ onSuccess }) => {
                     </div>
                 </div>
 
-                <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem', boxShadow: '0 0 30px var(--primary-dim)' }}>
+                <button
+                    type="submit"
+                    className="btn-primary"
+                    style={{
+                        marginTop: '1rem',
+                        padding: '1.125rem',
+                        fontSize: '1rem',
+                        fontWeight: 700
+                    }}
+                >
                     Save Transaction
                 </button>
             </form>

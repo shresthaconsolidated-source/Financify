@@ -4,15 +4,17 @@ import { TransactionHistory } from './TransactionHistory';
 
 export const TransactionsView = () => {
     return (
-        <div className="container" style={{ paddingTop: '2rem' }}>
-            <h2 style={{ marginBottom: '1rem' }}>Transactions</h2>
+        <div style={{ padding: '1.5rem 1.25rem' }}>
+            <h2 style={{ marginBottom: '2rem', fontSize: '1.75rem', fontWeight: 800 }}>Transactions</h2>
 
             <div style={{ marginBottom: '2rem' }}>
                 <TransactionForm />
             </div>
 
-            <h3 style={{ marginBottom: '1rem' }}>History</h3>
-            <TransactionHistory />
+            <div>
+                <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: 700 }}>History</h3>
+                <TransactionHistory />
+            </div>
         </div>
     );
 };
