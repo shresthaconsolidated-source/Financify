@@ -17,22 +17,43 @@ export const DashboardView = ({ onNavigate }) => {
     return (
         <div style={{ padding: '1.5rem 1.25rem', position: 'relative', zIndex: 1 }}>
             {/* Header */}
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <div>
-                    <div style={{
-                        fontSize: '0.875rem',
-                        color: 'var(--text-secondary)',
-                        fontWeight: 600,
-                        marginBottom: '0.25rem'
-                    }}>
-                        Welcome back,
+            <header style={{ marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                    <div>
+                        <div style={{
+                            fontSize: '1.75rem',
+                            fontWeight: 800,
+                            marginBottom: '0.25rem',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text'
+                        }}>
+                            Financify
+                        </div>
+                        <div style={{
+                            fontSize: '0.75rem',
+                            color: 'var(--text-tertiary)',
+                            fontWeight: 600,
+                            letterSpacing: '0.05em'
+                        }}>
+                            v6.7.1
+                        </div>
                     </div>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-                        {data?.user.name || 'User'} 👋
+                    <div className="avatar">
+                        {data?.user.name?.[0] || 'U'}
                     </div>
                 </div>
-                <div className="avatar">
-                    {data?.user.name?.[0] || 'U'}
+                <div style={{
+                    fontSize: '0.875rem',
+                    color: 'var(--text-secondary)',
+                    fontWeight: 600,
+                    marginBottom: '0.25rem'
+                }}>
+                    Welcome back,
+                </div>
+                <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+                    {data?.user.name || 'User'} 👋
                 </div>
             </header>
 
