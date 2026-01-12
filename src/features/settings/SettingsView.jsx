@@ -5,7 +5,7 @@ import { generateSmartTemplate, parseExcel } from '../../utils/excelHelpers';
 import { exportJSON, parseJSON } from '../../utils/csvHelpers';
 
 export const SettingsView = () => {
-    const { data, addAccount, updateAccount, deleteAccount, updateCurrency, addCategory, deleteCategory, addAssetClass, deleteAssetClass, importData, importExcelTransactions } = useWealth();
+    const { data, addAccount, updateAccount, deleteAccount, updateCurrency, addCategory, deleteCategory, addAssetClass, deleteAssetClass, importData, importExcelTransactions, mergeDuplicateAccounts } = useWealth();
 
     // Modals & State
     const [activeModal, setActiveModal] = useState(null);
@@ -108,6 +108,26 @@ export const SettingsView = () => {
                         </div>
 
                         {importStatus && <div style={{ fontSize: '0.8rem', color: '#34C759', textAlign: 'center' }}>{importStatus}</div>}
+
+                        {/* Cleanup Utilities */}
+                        <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(255, 193, 7, 0.08)', borderRadius: '12px', border: '1px solid rgba(255, 193, 7, 0.2)' }}>
+                            <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>🔧 Data Cleanup</h4>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+                                If you have duplicate accounts (e.g., from importing data twice), use this tool to merge them and consolidate balances.
+                            </p>
+                            <button
+                                className="btn-secondary"
+                                onClick={() => {
+                                    if (window.confirm('This will merge accounts with the same name and combine their balances. Continue?')) {
+                                        mergeDuplicateAccounts();
+                                        alert('Duplicates merged successfully!');
+                                    }
+                                }}
+                                style={{ width: '100%', padding: '0.8rem', fontSize: '0.85rem' }}
+                            >
+                                Merge Duplicate Accounts
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>

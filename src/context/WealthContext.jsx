@@ -330,6 +330,68 @@ export const WealthProvider = ({ children }) => {
         return rows.length;
     };
 
+    const mergeDuplicateAccounts = () => {
+        setData(prev => {
+            const accountMap = new Map();
+            const duplicates = [];
+
+            // 1. Find duplicates (case-insensitive)
+            prev.accounts.forEach(acc => {
+                const nameLower = acc.name.toLowerCase();
+                if (accountMap.has(nameLower)) {
+                    accountMap.get(nameLower).push(acc);
+                } else {
+                    accountMap.set(nameLower, [acc]);
+                }
+            });
+
+            // 2. Identify which to keep and which to merge
+            const accountsToKeep = [];
+            const idsToRemove = new Set();
+            const idMapping = new Map(); // old ID -> new ID
+
+            accountMap.forEach((accounts) => {
+                if (accounts.length > 1) {
+                    // Multiple accounts with same name - merge them
+                    const keeper = accounts[0]; // Keep the first one
+                    let totalBalance = 0;
+
+                    accounts.forEach(acc => {
+                        totalBalance += Number(acc.balance);
+                        if (acc.id !== keeper.id) {
+                            idsToRemove.add(acc.id);
+                            idMapping.set(acc.id, keeper.id);
+                        }
+                    });
+
+                    accountsToKeep.push({ ...keeper, balance: totalBalance });
+                    duplicates.push({ name: keeper.name, count: accounts.length, mergedBalance: totalBalance });
+                } else {
+                    // No duplicates, keep as is
+                    accountsToKeep.push(accounts[0]);
+                }
+            });
+
+            // 3. Update transactions to point to kept accounts
+            const updatedTransactions = prev.transactions.map(tx => {
+                let updated = { ...tx };
+                if (idMapping.has(tx.accountId)) {
+                    updated.accountId = idMapping.get(tx.accountId);
+                }
+                if (tx.toAccountId && idMapping.has(tx.toAccountId)) {
+                    updated.toAccountId = idMapping.get(tx.toAccountId);
+                }
+                return updated;
+            });
+
+            return {
+                ...prev,
+                accounts: accountsToKeep,
+                transactions: updatedTransactions
+            };
+        });
+    };
+
     const addGoal = (goal) => {
         setData(prev => ({
             ...prev,
@@ -367,6 +429,7 @@ export const WealthProvider = ({ children }) => {
         deleteAssetClass,
         importData,
         importExcelTransactions,
+        mergeDuplicateAccounts,
         addGoal,
         updateGoal,
         deleteGoal
