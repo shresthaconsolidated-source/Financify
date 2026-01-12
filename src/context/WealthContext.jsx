@@ -160,7 +160,12 @@ export const WealthProvider = ({ children }) => {
     };
 
     const addAccount = (account) => {
-        const newAccount = { ...account, id: uuidv4(), balance: Number(account.openingBalance) };
+        const newAccount = {
+            ...account,
+            id: uuidv4(),
+            balance: Number(account.openingBalance),
+            openingBalance: Number(account.openingBalance)
+        };
         setData(prev => ({
             ...prev,
             accounts: [...prev.accounts, newAccount]

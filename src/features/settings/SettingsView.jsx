@@ -179,7 +179,7 @@ export const SettingsView = () => {
                                 </div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <div style={{ color: 'var(--text-main)', fontWeight: '600' }}>{data.user.currency}{Number(acc.balance).toLocaleString()}</div>
+                                <div style={{ color: 'var(--text-main)', fontWeight: '600' }}>{data.user.currency}{Number(acc.openingBalance || acc.balance).toLocaleString()}</div>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                                     <button
                                         onClick={() => setActiveModal('EDIT_ACCOUNT_' + acc.id)}
