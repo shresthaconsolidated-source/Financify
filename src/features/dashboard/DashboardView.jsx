@@ -168,7 +168,7 @@ export const DashboardView = ({ onNavigate }) => {
                             fontWeight: 600,
                             letterSpacing: '0.05em'
                         }}>
-                            v6.8.0
+                            v6.8.3
                         </div>
                     </div>
                     <div className="avatar">
