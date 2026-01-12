@@ -127,6 +127,16 @@ export const SettingsView = () => {
                             >
                                 Merge Duplicate Accounts
                             </button>
+                            <button
+                                className="btn-primary"
+                                onClick={() => {
+                                    recalculateAllBalances();
+                                    alert('Balances recalculated!');
+                                }}
+                                style={{ width: '100%', padding: '0.8rem', fontSize: '0.85rem', marginTop: '0.75rem' }}
+                            >
+                                🔄 Recalculate Balances
+                            </button>
                         </div>
                     </div>
                 </div>
