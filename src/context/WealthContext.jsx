@@ -397,6 +397,40 @@ export const WealthProvider = ({ children }) => {
         });
     };
 
+    const recalculateAllBalances = () => {
+        setData(prev => {
+            const updatedAccounts = prev.accounts.map(acc => {
+                // Start with opening balance (or current if no opening balance saved)
+                let calculatedBalance = Number(acc.openingBalance || 0);
+
+                // Apply all transactions for this account
+                prev.transactions.forEach(tx => {
+                    if (tx.type === 'INCOME' && tx.accountId === acc.id) {
+                        calculatedBalance += Number(tx.amount);
+                    } else if (tx.type === 'EXPENSE' && tx.accountId === acc.id) {
+                        calculatedBalance -= Number(tx.amount);
+                    } else if (tx.type === 'TRANSFER') {
+                        // From account - deduct
+                        if (tx.accountId === acc.id) {
+                            calculatedBalance -= Number(tx.amount);
+                        }
+                        // To account - add
+                        if (tx.toAccountId === acc.id) {
+                            calculatedBalance += Number(tx.amount);
+                        }
+                    }
+                });
+
+                return { ...acc, balance: calculatedBalance };
+            });
+
+            return {
+                ...prev,
+                accounts: updatedAccounts
+            };
+        });
+    };
+
     const addGoal = (goal) => {
         setData(prev => ({
             ...prev,
@@ -435,6 +469,7 @@ export const WealthProvider = ({ children }) => {
         importData,
         importExcelTransactions,
         mergeDuplicateAccounts,
+        recalculateAllBalances,
         addGoal,
         updateGoal,
         deleteGoal

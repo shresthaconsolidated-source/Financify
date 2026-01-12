@@ -5,7 +5,7 @@ import { generateSmartTemplate, parseExcel } from '../../utils/excelHelpers';
 import { exportJSON, parseJSON } from '../../utils/csvHelpers';
 
 export const SettingsView = () => {
-    const { data, addAccount, updateAccount, deleteAccount, updateCurrency, addCategory, deleteCategory, addAssetClass, deleteAssetClass, importData, importExcelTransactions, mergeDuplicateAccounts } = useWealth();
+    const { data, addAccount, updateAccount, deleteAccount, updateCurrency, addCategory, deleteCategory, addAssetClass, deleteAssetClass, importData, importExcelTransactions, mergeDuplicateAccounts, recalculateAllBalances } = useWealth();
 
     // Modals & State
     const [activeModal, setActiveModal] = useState(null);
