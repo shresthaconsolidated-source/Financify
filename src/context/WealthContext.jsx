@@ -304,34 +304,25 @@ export const WealthProvider = ({ children }) => {
 
                 newTxList.push(newTx);
 
-                // 5. Update Balance
-                const accIndex = newAccounts.findIndex(a => a.id === account.id);
-                if (accIndex >= 0) {
-                    const currentBal = Number(newAccounts[accIndex].balance);
-                    if (type === 'INCOME') {
-                        newAccounts[accIndex] = { ...newAccounts[accIndex], balance: currentBal + amount };
-                    } else if (type === 'EXPENSE') {
-                        newAccounts[accIndex] = { ...newAccounts[accIndex], balance: currentBal - amount };
-                    } else if (type === 'TRANSFER' && toAccount) {
-                        // Deduct from source account
-                        newAccounts[accIndex] = { ...newAccounts[accIndex], balance: currentBal - amount };
-                        // Add to destination account
-                        const toAccIndex = newAccounts.findIndex(a => a.id === toAccount.id);
-                        if (toAccIndex >= 0) {
-                            const toCurrentBal = Number(newAccounts[toAccIndex].balance);
-                            newAccounts[toAccIndex] = { ...newAccounts[toAccIndex], balance: toCurrentBal + amount };
-                        }
-                    }
-                }
+                // Balance will be recalculated after import - don't update here
             });
 
-            return {
+            // Update state
+            const newState = {
                 ...prev,
                 accounts: newAccounts,
                 categories: newCategories,
                 transactions: [...newTxList, ...prev.transactions]
             };
+
+            return newState;
         });
+
+        // Auto-recalculate balances after import
+        setTimeout(() => {
+            recalculateAllBalances();
+        }, 100);
+
         return rows.length;
     };
 
