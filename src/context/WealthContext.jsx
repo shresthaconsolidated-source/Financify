@@ -303,25 +303,39 @@ export const WealthProvider = ({ children }) => {
                 }
 
                 newTxList.push(newTx);
-
-                // Balance will be recalculated after import - don't update here
             });
 
-            // Update state
-            const newState = {
+            // Recalculate all account balances from opening balance + transactions
+            const finalAccounts = newAccounts.map(acc => {
+                let calculatedBalance = Number(acc.openingBalance || 0);
+
+                // Apply all transactions for this account (both old and new)
+                const allTransactions = [...newTxList, ...prev.transactions];
+                allTransactions.forEach(tx => {
+                    if (tx.type === 'INCOME' && tx.accountId === acc.id) {
+                        calculatedBalance += Number(tx.amount);
+                    } else if (tx.type === 'EXPENSE' && tx.accountId === acc.id) {
+                        calculatedBalance -= Number(tx.amount);
+                    } else if (tx.type === 'TRANSFER') {
+                        if (tx.accountId === acc.id) {
+                            calculatedBalance -= Number(tx.amount);
+                        }
+                        if (tx.toAccountId === acc.id) {
+                            calculatedBalance += Number(tx.amount);
+                        }
+                    }
+                });
+
+                return { ...acc, balance: calculatedBalance };
+            });
+
+            return {
                 ...prev,
-                accounts: newAccounts,
+                accounts: finalAccounts,
                 categories: newCategories,
                 transactions: [...newTxList, ...prev.transactions]
             };
-
-            return newState;
         });
-
-        // Auto-recalculate balances after import
-        setTimeout(() => {
-            recalculateAllBalances();
-        }, 100);
 
         return rows.length;
     };
